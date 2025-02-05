@@ -13,7 +13,7 @@ namespace NameChests {
 		public static Color ColorOutline { get; private set; }
 
 		private const string DefaultColor = "#ffffff";
-		private const string DefaultColorPlaceholder = "#8c8c8c";
+		private const string DefaultColorPlaceholder = "#b2b2b2";
 		private const string DefaultColorOutline = "#000000";
 		
 		public static void Init() {
