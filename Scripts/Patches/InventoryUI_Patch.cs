@@ -28,7 +28,7 @@ namespace NameChests.Patches {
 				return;
 			
 			if (Utils.SupportsNaming(__instance.GetInventoryHandler().entityMonoBehaviour) && __instance.itemSlots.Count >= 1) {
-				var centerNameInput = __instance.visibleRows == 1;
+				var centerNameInput = __instance.visibleColumns <= 3;
 				var slot = __instance.itemSlots[centerNameInput ? (int) math.floor(__instance.visibleColumns / 2f) : 0];
 				var offset = centerNameInput ? NameOffsetCenter : NameOffsetLeft;
 				
