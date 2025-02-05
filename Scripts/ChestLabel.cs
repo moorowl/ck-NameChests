@@ -11,18 +11,16 @@ namespace NameChests {
 		private string _lastName;
 		private bool _wasBeingHovered;
 		private bool _wasBeingInteracted;
-
-		private void Start() {
-			text.SetTempColor(Options.Color);
-			text.SetOutlineColor(Options.ColorOutline);
-		}
-
+		
 		public void SetEntityMono(EntityMonoBehaviour entityMono) {
 			_assignedEntityMono = entityMono;
 		}
 
 		private void Awake() {
 			container.SetActive(false);
+			
+			text.style.color = Options.Color;
+			text.style.outlineColor = Options.ColorOutline;
 		}
 
 		private void LateUpdate() {

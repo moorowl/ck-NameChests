@@ -39,12 +39,12 @@ namespace NameChests {
 			var center = alignment == PugTextStyle.HorizontalAlignment.center ? 0 : 0.5f;
 			boxCollider.center = new Vector3(boxCollider.size.x * center, boxCollider.center.y, boxCollider.center.z);
 			
-			textInputField.pugText.SetTempColor(Options.Color);
-			textInputField.pugText.SetOutlineColor(Options.ColorOutline);
+			textInputField.pugText.style.color = Options.Color;
+			textInputField.pugText.style.outlineColor = Options.ColorOutline;
 			textInputField.pugText.style.horizontalAlignment = alignment;
 			textInputField.pugText.Render();
-			textInputField.hintText.SetTempColor(Options.ColorPlaceholder);
-			textInputField.hintText.SetOutlineColor(Options.ColorOutline);
+			textInputField.hintText.style.color = Options.ColorPlaceholder;
+			textInputField.hintText.style.outlineColor = Options.ColorOutline;
 			textInputField.hintText.style.horizontalAlignment = alignment;
 			textInputField.hintText.Render();
 			
