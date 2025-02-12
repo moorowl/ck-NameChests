@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace NameChests {
 	public class Main : IMod {
-		public const string Version = "1.1";
+		public const string Version = "1.1.1";
 		public const string Name = "NameChests";
 		public const string FriendlyName = "Chest Labels";
 		
@@ -53,7 +53,7 @@ namespace NameChests {
 			if (entityMono == null)
 				return;
 
-			var chestLabel = graphicalObject.GetComponent<ChestLabel>();
+			var chestLabel = graphicalObject.GetComponentInChildren<ChestLabel>(true);
 			if (Utils.SupportsNaming(entityMono) && chestLabel == null)
 				chestLabel = Object.Instantiate(ChestLabelPrefab, graphicalObject.transform).GetComponent<ChestLabel>();
 

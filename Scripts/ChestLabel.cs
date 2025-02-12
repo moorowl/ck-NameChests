@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace NameChests {
 	public class ChestLabel : MonoBehaviour {
@@ -34,6 +35,8 @@ namespace NameChests {
 			if (!isVisible) {
 				container.SetActive(false);
 				_lastName = null;
+				if (text.textString.Length > 0)
+					text.Clear();
 				return;
 			}
 			
