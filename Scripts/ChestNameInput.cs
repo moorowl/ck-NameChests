@@ -80,10 +80,10 @@ namespace NameChests {
 
 				var text = Utils.GetDescription(entityMono, ref _currentTextCache, ref _currentUtf8TextCache);
 				if (string.IsNullOrEmpty(text)) {
-					if (!string.IsNullOrEmpty(textInputField.pugText.textString)) {
+					if (!string.IsNullOrEmpty(textInputField.pugText.GetText())) {
 						textInputField.SetInputText("");
 					}
-				} else if (!textInputField.pugText.textString.Equals(text)) {
+				} else if (!textInputField.pugText.GetText().Equals(text)) {
 					textInputField.SetInputText(text);
 				}
 			}
