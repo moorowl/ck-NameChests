@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Pug.UnityExtensions;
+using UnityEngine;
 
 namespace NameChests {
 	public class ChestNameInput : UIelement {
