@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace NameChests {
 	public class Main : IMod {
-		public const string Version = "1.1.3";
+		public const string Version = "1.1.4";
 		public const string Name = "NameChests";
 		public const string FriendlyName = "Chest Labels";
 		
@@ -32,15 +32,12 @@ namespace NameChests {
 		public void ModObjectLoaded(Object obj) {
 			if (obj is not GameObject gameObject)
 				return;
+
+			if (gameObject.GetComponent<ChestNameInput>() != null)
+				ChestNameInputPrefab = gameObject;
 			
-			switch (gameObject.name) {
-				case "ChestLabel":
-					ChestLabelPrefab = gameObject;
-					break;
-				case "ChestNameInput":
-					ChestNameInputPrefab = gameObject;
-					break;
-			}
+			if (gameObject.GetComponent<ChestLabel>() != null)
+				ChestLabelPrefab = gameObject;
 		}
 
 		public void Shutdown() { }
