@@ -6,7 +6,7 @@ using UnityEngine;
 namespace NameChests {
 	public static class Utils {
 		public static bool SupportsNaming(EntityMonoBehaviour entityMono) {
-			return entityMono is Chest { showSortAndQuickStackButtons: true } or Pedestal or Mannequin or Aquarium or Terrarium;
+			return entityMono is Chest { showSortAndQuickStackButtons: true } or (Pedestal and not AncientGiant) or Mannequin or Aquarium or Terrarium;
 		}
 
 		public static string GetDescription(EntityMonoBehaviour entityMono, ref string currentTextCache, ref byte[] currentUtf8TextCache) {
