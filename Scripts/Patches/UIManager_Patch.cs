@@ -11,14 +11,23 @@ using Object = UnityEngine.Object;
 namespace NameChests.Patches {
 	[HarmonyPatch]
 	public static class UIManager_Patch {
-		private static readonly Vector2 NameOffsetLeft = new(-10f / 16f, -1.1f);
-		private static readonly Vector2 NameOffsetCenter = new(0f, -1.1f);
+		private static readonly Vector2 NameOffsetLeft = new(-10f / 16f, 1.1f);
+		private static readonly Vector2 NameOffsetCenter = new(0f, 1.1f);
 
 		private static readonly Dictionary<int, ChestNameInput> ChestNameInputLookup = new();
 		
 		[HarmonyPatch(typeof(UIManager), nameof(UIManager.OnChestInventoryOpen))]
 		[HarmonyPostfix]
 		public static void OnChestInventoryOpen(UIManager __instance) {
+			UpdateChestNameInput(__instance.chestInventoryUI);
+		}
+		
+		[HarmonyPatch(typeof(UIManager), "Update")]
+		[HarmonyPostfix]
+		public static void Update(UIManager __instance) {
+			if (__instance.chestInventoryUI == null || !__instance.chestInventoryUI.isShowing || !__instance.chestInventoryUI.autoPositionSlots)
+				return;
+			
 			UpdateChestNameInput(__instance.chestInventoryUI);
 		}
 
@@ -47,8 +56,7 @@ namespace NameChests.Patches {
 					Alignment.Center => NameOffsetCenter,
 					_ => throw new ArgumentOutOfRangeException()
 				};
-				offset.y += inventoryUI.itemSlotsRoot.transform.position.y;
-				
+
 				chestNameInput.SetAlignment(textAlignment);
 				
 				chestNameInput.gameObject.SetActive(true);
@@ -60,8 +68,11 @@ namespace NameChests.Patches {
 
 		private static ChestNameInput GetChestNameInput(ItemSlotsUIContainer inventoryUI) {
 			var instanceId = inventoryUI.GetInstanceID();
-			if (!ChestNameInputLookup.TryGetValue(instanceId, out var chestNameInput)) {
-				chestNameInput = Object.Instantiate(Main.ChestNameInputPrefab, inventoryUI.backgroundSR.transform.parent).GetComponent<ChestNameInput>();
+			if (!ChestNameInputLookup.ContainsKey(instanceId)) {
+				var isExpandedChestUi = inventoryUI.GetType().GetNameChecked() == "ExpandedInventoryUI";
+				var parent = isExpandedChestUi ? inventoryUI.itemSlotsRoot.transform.parent.parent : inventoryUI.itemSlotsRoot.transform;
+					
+				var chestNameInput = Object.Instantiate(Main.ChestNameInputPrefab, parent).GetComponent<ChestNameInput>();
 				chestNameInput.gameObject.SetActive(false);
 				
 				ChestNameInputLookup[instanceId] = chestNameInput;
