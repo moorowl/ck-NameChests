@@ -1,4 +1,5 @@
-﻿using PugMod;
+﻿using System.Linq;
+using PugMod;
 using Interaction;
 using Pug.UnityExtensions;
 using Unity.Collections;
@@ -6,62 +7,52 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
 using UnityEngine;
+using Object = UnityEngine.Object;
+
+// ReSharper disable InconsistentNaming
 
 namespace NameChests {
 	public class Main : IMod {
-		public const string Version = "1.1.6";
-		public const string Name = "NameChests";
-		public const string FriendlyName = "Chest Labels";
+		public const string Version = "1.2";
+		public const string InternalName = "NameChests";
+		public const string DisplayName = "Chest Labels";
+
+		private const float HoveredDetectionRadius = 0.01f;
+		private static readonly float2 HoveredDetectionOffset = new(0f, -0.2f);
 		
-		internal static GameObject ChestNameInputPrefab;
-		internal static GameObject ChestLabelPrefab;
+		internal static GameObject ChestNameInputPrefab { get; private set; }
+		internal static GameObject ChestLabelPrefab { get; private set; }
+		
+		internal static AssetBundle AssetBundle { get; private set; }
 		
 		public static EntityMonoBehaviour InteractingEntityMono { get; private set; }
 		public static EntityMonoBehaviour HoveredEntityMono { get; private set; }
 
 		public void EarlyInit() {
-			Debug.Log($"[{FriendlyName}]: Mod version: {Version}");
+			Debug.Log($"[{DisplayName}]: Mod version: {Version}");
 			
-			API.Client.OnObjectSpawnedOnClient += TryAssignChestLabel;
-		}
-
-		public void Init() {
-			Options.Init();
-		}
-
-		public void ModObjectLoaded(Object obj) {
-			if (obj is not GameObject gameObject)
-				return;
-
-			if (gameObject.GetComponent<ChestNameInput>() != null)
-				ChestNameInputPrefab = gameObject;
+			var modInfo = API.ModLoader.LoadedMods.FirstOrDefault(modInfo => modInfo.Handlers.Contains(this));
+			AssetBundle = modInfo!.AssetBundles[0];
 			
-			if (gameObject.GetComponent<ChestLabel>() != null)
-				ChestLabelPrefab = gameObject;
+			ChestNameInputPrefab = AssetBundle.LoadAsset<GameObject>($"Assets/{InternalName}/Prefabs/ChestNameInput.prefab");
+			ChestLabelPrefab = AssetBundle.LoadAsset<GameObject>($"Assets/{InternalName}/Prefabs/ChestLabel.prefab");
+			
+			Options.Instance.Init();
 		}
 
+		public void Init() { }
+		
+		public void ModObjectLoaded(Object obj) { }
+		
 		public void Shutdown() { }
 
 		public void Update() {
+			Options.Instance.Update();
+			
 			UpdateInteractingAndHoveredEntities();
 		}
 
-		private static void TryAssignChestLabel(Entity entity, EntityManager entityManager, GameObject graphicalObject) {
-			var entityMono = graphicalObject.GetComponent<EntityMonoBehaviour>();
-			if (entityMono == null)
-				return;
-
-			var chestLabel = graphicalObject.GetComponentInChildren<ChestLabel>(true);
-			if (Utils.SupportsNaming(entityMono) && chestLabel == null)
-				chestLabel = Object.Instantiate(ChestLabelPrefab, graphicalObject.transform).GetComponent<ChestLabel>();
-
-			if (chestLabel != null)
-				chestLabel.SetEntityMono(entityMono);
-		}
-
 		private static void UpdateInteractingAndHoveredEntities() {
-			const float hoveredDetectionRadius = 0.01f;
-			
 			InteractingEntityMono = null;
 			HoveredEntityMono = null;
 			
@@ -80,11 +71,11 @@ namespace NameChests {
 			
 			// Find hovered entity
 			if (player.inputModule.PrefersKeyboardAndMouse()) {
-				var position = EntityMonoBehaviour.ToWorldFromRender(Manager.ui.mouse.GetMouseGameViewPosition()).ToFloat2();
+				var position = EntityMonoBehaviour.ToWorldFromRender(Manager.ui.mouse.GetMouseGameViewPosition()).ToFloat2() + HoveredDetectionOffset;
 				var collisionWorld = PhysicsManager.GetCollisionWorld();
 
 				var outHits = new NativeList<ColliderCastHit>(Allocator.Temp);
-				collisionWorld.SphereCastAll(position.ToFloat3(), hoveredDetectionRadius, float3.zero, hoveredDetectionRadius, ref outHits, new CollisionFilter {
+				collisionWorld.SphereCastAll(position.ToFloat3(), HoveredDetectionRadius, float3.zero, HoveredDetectionRadius, ref outHits, new CollisionFilter {
 					BelongsTo = PhysicsLayerID.Everything,
 					CollidesWith = PhysicsLayerID.DefaultCollider
 				});
