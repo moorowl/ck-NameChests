@@ -25,6 +25,17 @@ namespace NameChests {
 			}
 		}
 		
+		public bool DeactivateInputOnDeselect {
+			get => _data.DeactivateInputOnDeselect;
+			set {
+				if (_data.DeactivateInputOnDeselect == value)
+					return;
+				
+				_data.DeactivateInputOnDeselect = value;
+				_isDirty = true;
+			}
+		}
+		
 		public HsvColor Color {
 			get => _data.Color;
 			set {
@@ -115,6 +126,7 @@ namespace NameChests {
 		private class OptionsData {
 			public int Version { get; set; } = CurrentVersion;
 			public bool ShowOnHover { get; set; }
+			public bool DeactivateInputOnDeselect { get; set; }
 			public HsvColor Color { get; set; } = new(0f, 0f, 1f);
 			public HsvColor OutlineColor { get; set; } = new(0f, 0f, 0f);
 		}

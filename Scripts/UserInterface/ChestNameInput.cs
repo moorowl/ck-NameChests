@@ -37,6 +37,10 @@ namespace NameChests {
 
 		protected override void LateUpdate() {
 			base.LateUpdate();
+
+			textInputField.dontDeactivateOnDeselect = !Options.Instance.DeactivateInputOnDeselect;
+			textInputField.triggerOnInputFieldDoneWhenCanceling = !textInputField.dontDeactivateOnDeselect;
+			
 			UpdateNameText();
 
 			// Deactivate text input if we swap to a controller
