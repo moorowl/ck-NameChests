@@ -126,8 +126,11 @@ namespace NameChests {
 		
 		[HarmonyPatch]
 		public static class Patches {
-			private static readonly Vector2 NameOffsetLeft = new(-10f / 16f, 1.1f);
-			private static readonly Vector2 NameOffsetCenter = new(0f, 1.1f);
+			private const float HorizontalOffsetLeft = -10f / 16f;
+			private const float HorizontalOffsetCenter = 0f;
+			private const float VerticalOffsetNormal = 18f / 16f;
+			private const float VeritcalOffsetExpandedChestUI = 7f / 16f;
+
 
 			private static readonly Dictionary<int, ChestNameInput> ChestNameInputLookup = new();
 
@@ -166,16 +169,17 @@ namespace NameChests {
 						Alignment.Center => PugTextStyle.HorizontalAlignment.center,
 						_ => throw new ArgumentOutOfRangeException()
 					};
-					var offset = alignment switch {
-						Alignment.Left => NameOffsetLeft,
-						Alignment.Center => NameOffsetCenter,
+					var horizontalOffset = alignment switch {
+						Alignment.Left => HorizontalOffsetLeft,
+						Alignment.Center => HorizontalOffsetCenter,
 						_ => throw new ArgumentOutOfRangeException()
 					};
+					var veritcalOffset = IsExpandedChestUI(inventoryUI) ? VeritcalOffsetExpandedChestUI : VerticalOffsetNormal;
 
 					chestNameInput.SetAlignment(textAlignment);
 
 					chestNameInput.gameObject.SetActive(true);
-					chestNameInput.gameObject.transform.localPosition = new Vector3(slot.transform.localPosition.x + offset.x, slot.transform.localPosition.y + offset.y, 0f);
+					chestNameInput.gameObject.transform.localPosition = new Vector3(slot.transform.localPosition.x + horizontalOffset, slot.transform.localPosition.y + veritcalOffset, 0f);
 				} else {
 					chestNameInput.gameObject.SetActive(false);
 				}
@@ -184,8 +188,7 @@ namespace NameChests {
 			private static ChestNameInput GetChestNameInput(ItemSlotsUIContainer inventoryUI) {
 				var instanceId = inventoryUI.GetInstanceID();
 				if (!ChestNameInputLookup.ContainsKey(instanceId)) {
-					var isExpandedChestUi = inventoryUI.GetType().GetNameChecked() == "ExpandedInventoryUI";
-					var parent = isExpandedChestUi ? inventoryUI.itemSlotsRoot.transform.parent.parent : inventoryUI.itemSlotsRoot.transform;
+					var parent = IsExpandedChestUI(inventoryUI) ? inventoryUI.itemSlotsRoot.transform.parent.parent : inventoryUI.itemSlotsRoot.transform;
 
 					var chestNameInput = Instantiate(Main.ChestNameInputPrefab, parent).GetComponent<ChestNameInput>();
 					chestNameInput.gameObject.SetActive(false);
@@ -194,6 +197,10 @@ namespace NameChests {
 				}
 
 				return ChestNameInputLookup[instanceId];
+			}
+
+			private static bool IsExpandedChestUI(ItemSlotsUIContainer inventoryUI) {
+				return inventoryUI.GetType().GetNameChecked() == "ExpandedInventoryUI";
 			}
 
 			private enum Alignment {
